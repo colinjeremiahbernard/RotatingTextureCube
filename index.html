@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rotating Textured Cube</title>
+  <style>
+    body {
+      margin: 0;
+    }
+
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    // Scene setup  
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+    // Light source  
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(5, 5, 5).normalize();
+    scene.add(light);
+    // Textures (make sure to have these images in the Images folder)  
+    const textures = [
+      'Images/texture1.jpeg', // Front face  
+      'Images/texture2.jpeg', // Back face  
+      'Images/texture3.jpeg', // Top face  
+      'Images/texture4.jpeg'  // Bottom face  
+    ];
+    // Create materials for each texture  
+    const materials = textures.map(texture => {
+      const textureLoader = new THREE.TextureLoader();
+      return new THREE.MeshBasicMaterial({
+        map: textureLoader.load(texture,
+          () => console.log(`Loaded: ${texture}`),
+          undefined,
+          err => console.error(`Error loading texture: ${texture}`, err))
+      });
+    });
+
+    // Create a cube geometry  
+    const geometry = new THREE.BoxGeometry(2, 2, 2);
+    const cube = new THREE.Mesh(geometry, [
+      materials[0], // Right face  
+      materials[1], // Left face  
+      materials[2], // Top face  
+      materials[3], // Bottom face  
+      materials[2], // Front face  
+      materials[3]  // Back face  
+    ]);
+    scene.add(cube);
+    camera.position.z = 5;
+
+    // Rotation speed variable  
+    let rotateSpeed = 0.01;
+    // Animate function  
+    function animate() {
+      requestAnimationFrame(animate);
+      cube.rotation.y += rotateSpeed; // Clockwise rotation around Y-axis  
+      renderer.render(scene, camera);
+    }
+    // Control rotation with arrow keys  
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') {
+        rotateSpeed = 0.01; // Clockwise rotation  
+      } else if (event.key === 'ArrowRight') {
+        rotateSpeed = -0.01; // Counter-clockwise rotation  
+      }
+    });
+
+    // Handle window resizing  
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Start the animation  
+    animate();  
+  </script>
+</body>
+
+</html>
